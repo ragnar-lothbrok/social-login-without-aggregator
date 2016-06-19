@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -23,7 +22,6 @@ import com.demo.account.dao.AccountDao;
 import com.demo.account.model.Account;
 import com.demo.account.postprocessor.AccountObjectPostProcessor;
 import com.demo.account.postprocessor.ValidationException;
-import com.demo.validations.utility.ValidationUtility;
 
 @RestController
 @RequestMapping("/")
@@ -40,9 +38,6 @@ public class AccountController {
 	@Autowired
 	PasswordEncoder passwordEncoder;
 
-	@Autowired
-	RedisTemplate<String, Object> redisTemplate;
-
 	@RequestMapping(
 		value = { "/signup" },
 		method = { RequestMethod.POST },
@@ -52,7 +47,6 @@ public class AccountController {
 			if (account != null) {
 				account.setPassword(account.getPassword() == null ? null : account.getPassword().trim());
 			}
-//			account.setPassword("secret");
 			Account postProcessedObject = accountObjectPostProcessor.getValidatedObject(account);
 			accountDao.save(postProcessedObject);
 			account = accountDao.findAccountByEmailId(account.getEmailId());
@@ -79,9 +73,6 @@ public class AccountController {
 		try {
 			Account account = null;
 			Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-			if (auth == null) {
-				auth = ValidationUtility.getAuthenticationFromRedis(request, redisTemplate);
-			}
 			logger.info("Authentication : " + auth);
 			if (auth != null && auth.getPrincipal() != null) {
 				account = accountDao.findOne(Long.parseLong(auth.getPrincipal().toString()));

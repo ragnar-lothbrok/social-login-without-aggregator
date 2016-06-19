@@ -3,15 +3,10 @@ package com.demo.validations.utility;
 import java.util.ArrayList;
 import java.util.Date;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContext;
 
 import com.demo.account.constants.ErrorCodeConstants;
 import com.demo.account.constants.UserAPIConstants;
@@ -145,19 +140,4 @@ public class ValidationUtility {
 		}
 	}
 
-	public static Authentication getAuthenticationFromRedis(HttpServletRequest request, RedisTemplate<String, Object> redisTemplate) {
-		Authentication auth = null;
-		try {
-			if (request.getParameter("access_token") != null) {
-				Object obj = redisTemplate.opsForValue().get(request.getParameter("access_token"));
-				if (obj != null && obj instanceof SecurityContext) {
-					auth = ((SecurityContext) obj).getAuthentication();
-				}
-			}
-		} catch (Exception exception) {
-			exception.printStackTrace();
-			logger.error("Exception occured while fetching data from redis : " + request.getParameter("access_token"), exception);
-		}
-		return auth;
-	}
 }

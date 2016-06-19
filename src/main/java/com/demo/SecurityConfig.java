@@ -3,7 +3,6 @@ package com.demo;
 import java.security.KeyPair;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.ManagementServerProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,21 +24,12 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
 import com.demo.account.dao.AccountDao;
-import com.demo.account.service.ExclusivelyUserDetailsService;
+import com.demo.account.service.CustomUserDetailsService;
 import com.demo.exception.handlers.CustomMD5PasswordEncoder;
 
 @Configuration
 @Order(ManagementServerProperties.ACCESS_OVERRIDE_ORDER)
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-	//
-	// @Value("${url.getUserInformation.headername}")
-	// private String headerName;
-
-	@Value("${url.social.token.name}")
-	private String socialTokenName;
-
-	@Value("${url.social.token.type}")
-	private String socialTokenType;
 
 	@Autowired
 	AccountDao accountDao;
@@ -47,9 +37,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 
-		http.authorizeRequests().antMatchers("/secure/**").authenticated().anyRequest().hasRole("AUTHENTICATED_USER")
-				.and().httpBasic().and().logout().logoutUrl("/logout/**").invalidateHttpSession(true).and().headers()
-				.frameOptions().xssProtection().httpStrictTransportSecurity().disable();
+		http.authorizeRequests().antMatchers("/secure/**").authenticated().anyRequest().hasRole("AUTHENTICATED_USER").and().httpBasic().and().logout()
+				.logoutUrl("/logout/**").invalidateHttpSession(true).and().headers().frameOptions().xssProtection().httpStrictTransportSecurity()
+				.disable();
 	}
 
 	@Bean
@@ -60,14 +50,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 	@Bean
 	@Override
 	protected UserDetailsService userDetailsService() {
-		return new ExclusivelyUserDetailsService();
+		return new CustomUserDetailsService();
 
 	}
 
 	@Override
 	public void configure(WebSecurity web) throws Exception {
-		 web.ignoring().antMatchers("/signup/**")
-	        .and().ignoring().antMatchers("/login/**");
+		web.ignoring().antMatchers("/signup/**").and().ignoring().antMatchers("/login/**");
 
 	}
 
@@ -89,29 +78,23 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 		@Autowired
 		private AuthenticationManager authenticationManager;
 
-	//	@Autowired
-		//CustomInMemoryAuthorizationCodeServices customInMemoryAuthorizationCodeServices;
-
 		@Bean
 		public JwtAccessTokenConverter jwtAccessTokenConverter() {
 			JwtAccessTokenConverter converter = new JwtAccessTokenConverter();
-			KeyPair keyPair = new KeyStoreKeyFactory(new ClassPathResource("keystore.jks"), "foobar".toCharArray())
-					.getKeyPair("test");
+			KeyPair keyPair = new KeyStoreKeyFactory(new ClassPathResource("keystore.jks"), "foobar".toCharArray()).getKeyPair("test");
 			converter.setKeyPair(keyPair);
 			return converter;
 		}
 
 		@Override
 		public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-			clients.inMemory().withClient("acme").secret("acmesecret")
-					.authorizedGrantTypes("authorization_code", "refresh_token", "password").scopes("openid")
-					.accessTokenValiditySeconds(31536000).authorities("ROLE_AUTHENTICATED_USER").autoApprove(true);
+			clients.inMemory().withClient("acme").secret("acmesecret").authorizedGrantTypes("authorization_code", "refresh_token", "password")
+					.scopes("openid").accessTokenValiditySeconds(31536000).authorities("ROLE_AUTHENTICATED_USER").autoApprove(true);
 		}
 
 		@Override
 		public void configure(AuthorizationServerEndpointsConfigurer endpoints) throws Exception {
 			endpoints.authenticationManager(authenticationManager).accessTokenConverter(jwtAccessTokenConverter());
-			//endpoints.authorizationCodeServices(customInMemoryAuthorizationCodeServices);
 		}
 
 		@Override
