@@ -1,4 +1,4 @@
-# social-login-without-aggregator
+# social-login-without-aggregator [Oauth working]
 Here we won't be needing any aggregator.
 
 http://localhost:8081/uaa/signup
@@ -57,6 +57,13 @@ Authentication Bearer eyJhbGciOiJSUzI1NiJ9.eyJleHAiOjE0OTgxMjY4MjQsInVzZXJfbmFtZ
   },
   "status": true
 }
+
+
+For social login you have to pass access token to this service from other service.
+I have mentioned here : https://github.com/ragnar-lothbrok/user-service/blob/master/README.md
+
+Linkden/Instagram/Google/Facebook : You can find login here.
+https://github.com/ragnar-lothbrok/spring-boot-social-login
 
 Please let me know if it is not working for you.
 
