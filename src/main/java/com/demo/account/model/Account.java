@@ -174,7 +174,8 @@ public class Account implements Serializable {
 	}
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@GeneratedValue(
+		strategy = GenerationType.IDENTITY)
 	private Long id;
 
 	private String emailId;
@@ -199,5 +200,15 @@ public class Account implements Serializable {
 
 	private String profileImage;
 	private String imsId;
+
+	private Boolean isVerified = false;
+
+	public Boolean getIsVerified() {
+		return isVerified;
+	}
+
+	public void setIsVerified(Boolean isVerified) {
+		this.isVerified = isVerified;
+	}
 
 }

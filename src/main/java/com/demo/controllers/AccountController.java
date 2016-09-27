@@ -22,6 +22,7 @@ import com.demo.account.dao.AccountDao;
 import com.demo.account.model.Account;
 import com.demo.account.postprocessor.AccountObjectPostProcessor;
 import com.demo.account.postprocessor.ValidationException;
+import com.demo.account.service.VerificationService;
 
 @RestController
 @RequestMapping("/")
@@ -37,6 +38,9 @@ public class AccountController {
 
 	@Autowired
 	PasswordEncoder passwordEncoder;
+	
+	@Autowired
+	private VerificationService verificationService;
 
 	@RequestMapping(
 		value = { "/signup" },
@@ -49,6 +53,7 @@ public class AccountController {
 			}
 			Account postProcessedObject = accountObjectPostProcessor.getValidatedObject(account);
 			accountDao.save(postProcessedObject);
+			verificationService.saveVerifyUser(postProcessedObject);
 			account = accountDao.findAccountByEmailId(account.getEmailId());
 			account.setPassword(null);
 			logger.info("Saved Account Details : " + account);
