@@ -68,7 +68,5 @@ https://github.com/ragnar-lothbrok/spring-boot-social-login
 Please let me know if it is not working for you.
 
 
-
-
-
+http://www.baeldung.com/spring-security-oauth-jwt
 
